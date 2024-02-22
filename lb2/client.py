@@ -1,6 +1,6 @@
 import socket
 
-HOST = ("localhost", 8080)
+HOST = (socket.gethostname(), 8080)
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(HOST)
 

@@ -16,19 +16,11 @@ class Server:
 
 
 
-def main():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-        server.bind(HOST)
-        server.listen()
-        print("Server started")
 
-        while True:
-            conn, addr = server.accept()
-            print(f"Connected - {addr}")
-            data = "Hello World!".encode('UTF-8')
-            msg = conn.recv(1024)
-            print(msg.decode())
-            conn.send(data)
 
 def generate_salt():
     pass
+
+
+if __name__ == '__main__':
+    Server()
