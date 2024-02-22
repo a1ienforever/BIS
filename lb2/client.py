@@ -1,29 +1,32 @@
+import pickle
 import socket
-
-HOST = (socket.gethostname(), 8080)
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(HOST)
-
-def main():
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-        client.connect(HOST)
-        data = 'Hello'.encode()
-        client.send(data)
-        msg = client.recv(1024)
-        print(msg.decode('UTF-8'))
+from hashlib import md5
+from argon2 import PasswordHasher
 
 
-def login():
-    LOGIN = input("Введите логин: ")
-    PASSWORD = input("Введите пароль: ")
+class Client:
+    def __init__(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.HOST = (socket.gethostname(), 8080)
+        self.client.connect(self.HOST)
+        self.ph = PasswordHasher()
+
+    def login(self):
+        LOGIN = input("Введите логин: ")
+        PASSWORD = input("Введите пароль: ")
+
+    def hash(self, password):
+        hashed_password = self.ph.hash(password)
+        return hashed_password
+
+    def sign_in(self):
+        LOGIN = 'admin'
+        PASSWORD = 'admin'
+        hashed_pass = self.hash(PASSWORD.encode())
+        print(hashed_pass.split('$'))
+        self.client.send(pickle.dumps(('Sign in', LOGIN, hashed_pass)))
 
 
-
-
-
-def sign_in(login, password):
-    pass
-
-
-def hash_psw(password):
-    pass
+if __name__ == '__main__':
+    client = Client()
+    client.sign_in()
