@@ -1,7 +1,6 @@
 import pickle
+import random
 import socket
-from hashlib import md5
-from argon2 import PasswordHasher
 
 
 class Client:
@@ -9,24 +8,33 @@ class Client:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HOST = (socket.gethostname(), 8080)
         self.client.connect(self.HOST)
-        self.ph = PasswordHasher()
+        self.sign_in()
 
     def login(self):
         LOGIN = input("Введите логин: ")
         PASSWORD = input("Введите пароль: ")
 
-    def hash(self, password):
-        hashed_password = self.ph.hash(password)
-        return hashed_password
-
     def sign_in(self):
         LOGIN = 'admin'
-        PASSWORD = 'admin'
-        hashed_pass = self.hash(PASSWORD.encode())
-        print(hashed_pass.split('$'))
-        self.client.send(pickle.dumps(('Sign in', LOGIN, hashed_pass)))
+        PASSWORD = 'qwerty'
+        key = random.randint(0, 33)
+        crypt_pass = self.encrypt(PASSWORD, key)
+        print(crypt_pass)
+        self.client.sendall(pickle.dumps(('Sign in', LOGIN, crypt_pass, key)))
+
+    def encrypt(self, text, shift):
+        result = ""
+        for char in text:
+            if char.isalpha():
+                shifted_char = chr(((ord(char.lower()) - 97 + shift) % 26) + 97)
+                if char.isupper():
+                    shifted_char = shifted_char.upper()
+                result += shifted_char
+            else:
+                result += char
+        return result
+
 
 
 if __name__ == '__main__':
     client = Client()
-    client.sign_in()
