@@ -1,6 +1,8 @@
+import os
 import pickle
 import random
 import socket
+import sys
 
 
 class Client:
@@ -8,19 +10,24 @@ class Client:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HOST = (socket.gethostname(), 8080)
         self.client.connect(self.HOST)
-        self.sign_in()
+        self.key = random.randint(0, 33)
 
-    def login(self):
-        LOGIN = input("Введите логин: ")
-        PASSWORD = input("Введите пароль: ")
+        self.form()
+        msg = self.client.recv(1024).decode()
+        print(msg)
 
     def sign_in(self):
-        LOGIN = 'admin'
-        PASSWORD = 'qwerty'
-        key = random.randint(0, 33)
-        crypt_pass = self.encrypt(PASSWORD, key)
-        print(crypt_pass)
-        self.client.sendall(pickle.dumps(('Sign in', LOGIN, crypt_pass, key)))
+        LOGIN = input("Введите логин: ")
+        PASSWORD = input("Введите пароль: ")
+        encrypt_password = self.encrypt(PASSWORD, self.key)
+        self.client.sendall(pickle.dumps(('Log in', LOGIN, encrypt_password, self.key)))
+
+    def registration(self):
+        LOGIN = input("Введите логин: ")
+        PASSWORD = input("Введите пароль: ")
+        crypt_pass = self.encrypt(PASSWORD, self.key)
+        self.client.sendall(pickle.dumps(('Sign in', LOGIN, crypt_pass, self.key)))
+
 
     def encrypt(self, text, shift):
         result = ""
@@ -34,7 +41,23 @@ class Client:
                 result += char
         return result
 
+    def form(self):
+        print("""1 - Registration
+        2 - Authorization
+        3 - exit""")
+        choice = input("Choice: ")
+        if choice == '1':
+            self.registration()
+        elif choice == '2':
+            self.sign_in()
+        elif choice == '3':
+            sys.exit()
+        else:
+            print("Incorrect input, try again")
+            self.form()
+
+
 
 
 if __name__ == '__main__':
-    client = Client()
+    Client()
