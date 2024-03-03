@@ -52,7 +52,6 @@ class Server:
     def hash_with_salt(self, password, salt):
         password_salt = salt + password
         hashed_password = hashlib.sha256(password_salt.encode()).hexdigest()
-
         return hashed_password
 
     def add_db(self, login, password, salt):
