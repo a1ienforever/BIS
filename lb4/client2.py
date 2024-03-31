@@ -3,6 +3,7 @@ import random
 import socket
 import sys
 from hashlib import sha256
+from Cryptodome.Util.number import *
 
 
 class Client:
@@ -10,43 +11,40 @@ class Client:
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.HOST = (socket.gethostname(), 10000)
         self.client.connect(self.HOST)
-
-        self.N = int(self.client.recv(1024).decode())
-        self.A = None
+        self.t = 16
+        self.n = 1055951207
 
         self.form()
 
     def registration(self):
         LOGIN = input("Введите логин: ")
         PASSWORD = input("Введите пароль: ")
+        S = bytes_to_long(PASSWORD.encode())
+        self.client.sendall(pickle.dumps(('registration', LOGIN, S)))
 
-        hashed_password = self.recursion_hashing(PASSWORD, self.N)
-        self.client.sendall(pickle.dumps(('registration', LOGIN, hashed_password)))
 
         msg = pickle.loads(self.client.recv(1024))
         print(msg)
 
     def sign_in(self):
         LOGIN = input("Введите логин: ")
-        P = input("Введите пароль: ")
+        S_ = input("Введите пароль: ")
+        S = bytes_to_long(S_.encode())
         self.client.sendall(pickle.dumps(('sign in', LOGIN, None)))
+        n = pickle.loads(self.client.recv(1024))
+        for i in range(self.t):
+            r = random.randint(1, n - 1)
+            x = pow(r, 2, n)
+            self.client.sendall(pickle.dumps(x))
 
-        self.A = int(pickle.loads(self.client.recv(1024)))
-        print(self.A)
-        check_password = self.recursion_hashing(P, self.N - self.A)
-        self.client.sendall(pickle.dumps(check_password))
+            e = pickle.loads(self.client.recv(1024))
+            y = (r * (S ** e)) % n
+            self.client.sendall(pickle.dumps(y))
 
         msg = pickle.loads(self.client.recv(1024))
 
         print(msg)
 
-
-
-    def recursion_hashing(self, P, n, counter=0):
-        if counter < n:
-            counter += 1
-            return self.recursion_hashing(sha256(P.encode()).hexdigest(), n, counter)
-        return P
     def form(self):
         print("""1 - Registration
         2 - Authorization
