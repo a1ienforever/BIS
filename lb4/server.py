@@ -71,9 +71,9 @@ class Server:
         return "Registration successful"
 
     def get_password_by_username(self, login):
-        with sqlite3.connect('users.sqlite') as conn:
+        with sqlite3.connect('user.sqlite') as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT password, v, n FROM users WHERE login=?", (login,))
+            cursor.execute("SELECT password, v, n FROM user WHERE login=?", (login,))
             result = cursor.fetchone()
             if result:
                 return result
@@ -81,11 +81,11 @@ class Server:
                 return None
 
     def add_db(self, login, password, v, n):
-        with sqlite3.connect('users.sqlite') as db:
+        with sqlite3.connect('user.sqlite') as db:
             cursor = db.cursor()
-            cursor.execute(f"SELECT login FROM users WHERE login = '{login}'")
+            cursor.execute(f"SELECT login FROM user WHERE login = '{login}'")
             if cursor.fetchone() is None:
-                cursor.execute(f"INSERT INTO users VALUES(?,?,?,?)",
+                cursor.execute(f"INSERT INTO user VALUES(?,?,?,?)",
                                (login, password, v, n))
                 db.commit()
                 print("Запись сделана!")

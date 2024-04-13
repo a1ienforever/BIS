@@ -6,9 +6,9 @@ class DataBase:
         self.start_database()
 
     def start_database(self):
-        with sqlite3.connect('users.sqlite') as db:
+        with sqlite3.connect('user.sqlite') as db:
             cursor = db.cursor()
-            cursor.execute("""CREATE TABLE IF NOT EXISTS users(
+            cursor.execute("""CREATE TABLE IF NOT EXISTS user(
             login TEXT,
             password TEXT,
             v INT,
