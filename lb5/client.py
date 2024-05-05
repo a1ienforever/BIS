@@ -10,7 +10,7 @@ class Client:
         self.client.connect(self.HOST)
         self.g = 5
         self.p = 23
-        self.a = random.randint(1, 10)
+        self.a = 6
         while True:
             self.send_msg()
 
@@ -20,6 +20,7 @@ class Client:
         self.client.sendall(pickle.dumps(public_key))
         server_pk = pickle.loads(self.client.recv(1024))
         s = self.create_secret_key(server_pk)
+        print(s)
         encrypted_msg = self.encrypt(msg, s)
         print("Зашифрованное сообщение:", encrypted_msg)
         self.client.sendall(pickle.dumps(encrypted_msg))
@@ -36,7 +37,7 @@ class Client:
     def encrypt(self, message, key):
         encrypted_message = ""
         for char in message:
-            encrypted_char = chr((ord(char) + key) % 256)  # Применяем ключ к каждому символу сообщения
+            encrypted_char = chr((ord(char) + key) % 1024)  # Применяем ключ к каждому символу сообщения
             encrypted_message += encrypted_char
         return encrypted_message
 

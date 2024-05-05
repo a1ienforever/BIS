@@ -13,7 +13,7 @@ class Server:
         self.max_size_msg = 100
         self.g = 5
         self.p = 23
-        self.b = random.randint(1, 10)
+        self.b = 9
 
 
         try:
@@ -36,10 +36,11 @@ class Server:
         public_key = self.create_public_key()
         self.conn.sendall(pickle.dumps(public_key))
         s = self.create_secret_key(client_pk)
+        print(s)
         encrypted_msg = pickle.loads(self.conn.recv(1024))
         msg = self.decrypt(encrypted_msg, s)
         print("Зашифрованное сообщение:", encrypted_msg)
-        print('Расшифрованное сообщение:', msg)
+        print("Расшифрованное сообщение:", msg)
 
     def create_public_key(self):
         # a = random.randint(0,10)
@@ -54,7 +55,7 @@ class Server:
     def decrypt(self, encrypted_message, key):
         decrypted_message = ""
         for char in encrypted_message:
-            decrypted_char = chr((ord(char) - key) % 256)  # Расшифровываем сообщение, вычитая ключ
+            decrypted_char = chr((ord(char) - key) % 1024)  # Расшифровываем сообщение, вычитая ключ
             decrypted_message += decrypted_char
         return decrypted_message
 
